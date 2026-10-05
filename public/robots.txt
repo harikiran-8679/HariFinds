@@ -4,4 +4,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://harifinds.pages.dev/sitemap-index.xml
+Sitemap: https://harifinds.harikiran8679.workers.dev

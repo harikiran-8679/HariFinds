@@ -4,7 +4,7 @@ import sitemap from '@astrojs/sitemap';
 
 // NOTE: Keep this `site` value in sync with src/config.ts -> SITE.url.
 // If you add a custom domain later, change it in BOTH places.
-const SITE_URL = 'https://harifinds.pages.dev';
+const SITE_URL = 'https://harifinds.harikiran8679.workers.dev';
 
 // https://astro.build/config
 export default defineConfig({

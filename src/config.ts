@@ -12,7 +12,7 @@ export const SITE = {
    *  Default is the free Cloudflare Pages address.
    *  If you add a custom domain later (e.g. https://harifinds.com),
    *  change it here AND in astro.config.mjs AND public/robots.txt. */
-  url: 'https://harifinds.pages.dev',
+  url: 'https://harifinds.harikiran8679.workers.dev',
 
   /** The name shown in the header, page titles and structured data. */
   name: 'Hari Finds',
