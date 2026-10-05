@@ -46,7 +46,7 @@ export const SITE = {
    *  ------------------------------------------------------------------- */
   verification: {
     /** Google Search Console -> HTML tag method. */
-    google: '',
+    google: '6Fpjoe8DsRa767jOu2coHGFLmUhtbHlJuwTGkWofZjA',
     /** Bing Webmaster Tools -> <meta name="msvalidate.01" ...>. */
     bing: '',
   },
