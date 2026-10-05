@@ -1,0 +1,159 @@
+---
+/** PRODUCT PAGE - one static page is generated per product in products.json. */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductGrid from '../../components/ProductGrid.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import DisclosureNote from '../../components/DisclosureNote.astro';
+import { SITE } from '../../config';
+import {
+  products,
+  getRelatedProducts,
+  categorySlug,
+  withAssociatesTag,
+  absoluteUrl,
+  formatDate,
+  AFFILIATE_LINK_ATTRS,
+} from '../../lib/products';
+
+export async function getStaticPaths() {
+  return products.map((product) => ({
+    params: { id: product.id },
+    props: { product },
+  }));
+}
+
+const { product } = Astro.props;
+
+const related = getRelatedProducts(product, 4);
+const buyUrl = withAssociatesTag(product.affiliateLink, SITE.amazonAssociatesTag);
+const imageUrl = absoluteUrl(product.image, SITE.url);
+const canonical = absoluteUrl(`/product/${product.id}/`, SITE.url);
+const categoryHref = `/category/${categorySlug(product.category)}/`;
+
+// Product structured data. Deliberately NO price and NO ratings/reviews,
+// in line with the Amazon Associates rules on this site.
+const productJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Product',
+  name: product.title,
+  description: product.description,
+  image: [imageUrl],
+  category: product.category,
+  url: canonical,
+  mainEntityOfPage: canonical,
+  ...(product.tags && product.tags.length > 0 ? { keywords: product.tags.join(', ') } : {}),
+};
+---
+
+<BaseLayout
+  title={product.title}
+  description={product.description}
+  image={product.image}
+  type="product"
+  jsonLd={productJsonLd}
+>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'All finds', href: '/products/' },
+      { label: product.category, href: categoryHref },
+      { label: product.title },
+    ]}
+  />
+
+  <article class="container product-layout">
+    <!-- Large product image -->
+    <figure class="product-figure">
+      <img
+        src={product.image}
+        alt={`${product.title} — a ${product.category} find picked by ${SITE.name}`}
+        width="900"
+        height="1200"
+        loading="eager"
+        decoding="sync"
+        fetchpriority="high"
+      />
+    </figure>
+
+    <!-- Details -->
+    <div class="product-info">
+      <div class="product-meta">
+        <a class="chip" href={categoryHref}>{product.category}</a>
+        {product.priceNote && (
+          <span class="product-card-badge" style="position:static;">{product.priceNote}</span>
+        )}
+      </div>
+
+      <h1>{product.title}</h1>
+      <p class="product-description">{product.description}</p>
+
+      {
+        product.pros && product.pros.length > 0 && (
+          <section class="pros" aria-labelledby="why-heading">
+            <h2 id="why-heading">Why I recommend it</h2>
+            <ul>
+              {product.pros.map((point) => (
+                <li>{point}</li>
+              ))}
+            </ul>
+          </section>
+        )
+      }
+
+      <!-- Buy box -->
+      <div class="buy-box">
+        <a
+          class="btn btn-amazon"
+          href={buyUrl}
+          target={AFFILIATE_LINK_ATTRS.target}
+          rel={AFFILIATE_LINK_ATTRS.rel}
+        >
+          View on Amazon <span class="btn-arrow" aria-hidden="true">→</span>
+        </a>
+      </div>
+
+      <DisclosureNote />
+
+      <dl class="muted" style="font-size:0.85rem;margin-top:1.5rem;">
+        <div style="display:flex;gap:0.5rem;">
+          <dt>Added:</dt>
+          <dd style="margin:0;">{formatDate(product.dateAdded)}</dd>
+        </div>
+        {product.priceNote && (
+          <div style="display:flex;gap:0.5rem;">
+            <dt>Typical price range:</dt>
+            <dd style="margin:0;">{product.priceNote} (check the live price on Amazon)</dd>
+          </div>
+        )}
+      </dl>
+
+      {
+        product.tags && product.tags.length > 0 && (
+          <ul class="tag-list" style="margin-top:1rem;">
+            {product.tags.map((tag) => (
+              <li>
+                <a class="tag" href={`/products/?q=${encodeURIComponent(tag)}`}>
+                  #{tag}
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </article>
+
+  {
+    related.length > 0 && (
+      <section class="section container" style="padding-top:0;">
+        <div class="section-head">
+          <h2>Related finds</h2>
+          <a class="section-link" href={categoryHref}>
+            More {product.category} →
+          </a>
+        </div>
+        <ProductGrid products={related} />
+      </section>
+    )
+  }
+</BaseLayout>

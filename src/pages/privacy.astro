@@ -1,0 +1,74 @@
+---
+/** PRIVACY POLICY PAGE */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE } from '../config';
+---
+
+<BaseLayout
+  title="Privacy policy"
+  description={`How ${SITE.name} handles your data — short version: no accounts, no tracking scripts, no personal data collected.`}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Privacy policy' }]} />
+
+  <div class="container" style="padding-bottom:3rem;">
+    <header class="page-header">
+      <h1>Privacy policy</h1>
+      <p>Last updated: 5 October 2026</p>
+    </header>
+
+    <div class="prose">
+      <p>
+        This is a static website. There is no login, no comment form and no
+        newsletter, so there is nothing for you to sign up to and no personal
+        information stored about you.
+      </p>
+
+      <h2>What this site collects</h2>
+      <p>
+        Nothing. The pages are plain HTML, CSS and a small amount of JavaScript,
+        and they run entirely in your browser. The search and filter on the
+        all-products page happens locally on your device.
+      </p>
+
+      <h2>Cookies</h2>
+      <p>
+        {SITE.name} does not set its own cookies and does not run advertising
+        trackers or third-party analytics scripts.
+      </p>
+
+      <h2>Affiliate links</h2>
+      <p>
+        Product buttons link straight to Amazon.in through the Amazon Associates
+        programme. When you click one, my Associates tag is included in the URL so
+        Amazon knows the visit came from here. Amazon may then set its own cookies
+        in your browser in line with its own privacy notice, which I do not
+        control. See the <a href="/disclosure">affiliate disclosure</a> for details.
+      </p>
+
+      <h2>External links</h2>
+      <p>
+        Links to Amazon take you to Amazon's website. Once you are there, Amazon's
+        terms and privacy policies apply.
+      </p>
+
+      <h2>Hosting</h2>
+      <p>
+        The site is hosted on Cloudflare Pages. Like any web host, Cloudflare may
+        process standard technical request data (such as your IP address) to serve
+        pages and protect against abuse. That processing is governed by
+        Cloudflare's privacy policy.
+      </p>
+
+      <h2>Changes</h2>
+      <p>
+        If this policy changes, the date at the top of the page will be updated.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Questions? Email <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

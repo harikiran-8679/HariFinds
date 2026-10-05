@@ -1,0 +1,7 @@
+# Hari Finds - robots.txt
+# Remember to update the Sitemap URL if you add a custom domain.
+
+User-agent: *
+Allow: /
+
+Sitemap: https://harifinds.pages.dev/sitemap-index.xml

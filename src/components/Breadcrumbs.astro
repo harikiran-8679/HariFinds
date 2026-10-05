@@ -1,0 +1,44 @@
+---
+/**
+ * Breadcrumbs - renders a visible trail AND the matching BreadcrumbList
+ * JSON-LD structured data (required on product pages for Google).
+ */
+import { SITE } from '../config';
+
+export interface Crumb {
+  label: string;
+  /** Omit href on the final crumb (the current page). */
+  href?: string;
+}
+
+export interface Props {
+  items: Crumb[];
+  /** Emit BreadcrumbList structured data. */
+  jsonLd?: boolean;
+}
+
+const { items, jsonLd = true } = Astro.props;
+
+const breadcrumbJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: items.map((item, index) => ({
+    '@type': 'ListItem',
+    position: index + 1,
+    name: item.label,
+    ...(item.href ? { item: new URL(item.href, SITE.url).href } : {}),
+  })),
+};
+---
+
+<nav class="breadcrumbs container" aria-label="Breadcrumb">
+  <ol>
+    {items.map((item) => (
+      <li>
+        {item.href ? <a href={item.href}>{item.label}</a> : <span aria-current="page">{item.label}</span>}
+      </li>
+    ))}
+  </ol>
+</nav>
+
+{jsonLd && <script type="application/ld+json" set:html={JSON.stringify(breadcrumbJsonLd)} />}

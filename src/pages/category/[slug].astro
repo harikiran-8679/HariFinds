@@ -1,0 +1,76 @@
+---
+/** CATEGORY PAGES - one static page is generated per category in products.json. */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ProductGrid from '../../components/ProductGrid.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { SITE } from '../../config';
+import { getCategories, getProductsByCategory } from '../../lib/products';
+
+export async function getStaticPaths() {
+  return getCategories().map((category) => ({
+    params: { slug: category.slug },
+    props: { categoryName: category.name, count: category.count },
+  }));
+}
+
+const { categoryName } = Astro.props;
+const items = getProductsByCategory(categoryName);
+const otherCategories = getCategories().filter((c) => c.name !== categoryName);
+
+const pageTitle = `${categoryName} finds`;
+const pageDescription = `Handpicked ${categoryName.toLowerCase()} finds worth your money in India — ${items.length} honest picks with a direct link to Amazon.in.`;
+---
+
+<BaseLayout
+  title={pageTitle}
+  description={pageDescription}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: pageTitle,
+    description: pageDescription,
+    url: new URL(`/category/${Astro.params.slug}/`, SITE.url).href,
+    isPartOf: { '@type': 'WebSite', name: SITE.name, url: SITE.url },
+  }}
+>
+  <Breadcrumbs
+    items={[
+      { label: 'Home', href: '/' },
+      { label: 'All finds', href: '/products/' },
+      { label: categoryName },
+    ]}
+  />
+
+  <div class="container">
+    <header class="page-header">
+      <h1>{pageTitle}</h1>
+      <p>{pageDescription}</p>
+    </header>
+
+    <div class="chip-row" style="margin-bottom:1.5rem;">
+      <a class="chip chip-active" href={`/category/${Astro.params.slug}/`}>
+        {categoryName} <span class="chip-count">{items.length}</span>
+      </a>
+      {otherCategories.map((category) => (
+        <a class="chip" href={`/category/${category.slug}/`}>
+          {category.name} <span class="chip-count">{category.count}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+
+  <section class="container" style="padding-bottom:3rem;">
+    {items.length > 0 ? (
+      <ProductGrid products={items} priorityCount={2} />
+    ) : (
+      <div class="empty-state">
+        <h2>Nothing here yet</h2>
+        <p>New {categoryName.toLowerCase()} finds are on the way.</p>
+      </div>
+    )}
+
+    <p style="margin-top:2rem;">
+      <a class="btn btn-outline" href="/products/">Browse all finds →</a>
+    </p>
+  </section>
+</BaseLayout>

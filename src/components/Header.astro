@@ -1,0 +1,52 @@
+---
+/** Sticky header: logo + search + category navigation links. */
+import { SITE } from '../config';
+import { getCategories } from '../lib/products';
+
+const path = Astro.url.pathname;
+// Show the five busiest categories in the header nav.
+const topCategories = getCategories()
+  .sort((a, b) => b.count - a.count)
+  .slice(0, 5);
+
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+
+<header class="site-header">
+  <div class="container header-inner">
+    <a class="brand" href="/">
+      <span class="brand-mark" aria-hidden="true">H</span>
+      <span>{SITE.name}</span>
+    </a>
+
+    <!-- Search works without JavaScript: it submits a plain GET request
+         to /products/ with ?q=... -->
+    <form class="header-search" action="/products/" method="get" role="search">
+      <label class="visually-hidden" for="header-q">Search finds</label>
+      <input
+        id="header-q"
+        type="search"
+        name="q"
+        placeholder="Search finds…"
+        autocomplete="off"
+      />
+    </form>
+
+    <nav class="header-nav" aria-label="Main navigation">
+      <a href="/products/" aria-current={isActive('/products') ? 'page' : undefined}>
+        All finds
+      </a>
+      {topCategories.map((category) => (
+        <a
+          href={`/category/${category.slug}/`}
+          aria-current={isActive(`/category/${category.slug}`) ? 'page' : undefined}
+        >
+          {category.name}
+        </a>
+      ))}
+      <a href="/guides/" aria-current={isActive('/guides') ? 'page' : undefined}>Guides</a>
+      <a href="/about" aria-current={isActive('/about') ? 'page' : undefined}>About</a>
+    </nav>
+  </div>
+</header>

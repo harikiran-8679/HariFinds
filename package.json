@@ -1,0 +1,29 @@
+{
+  "name": "harifinds",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Hari Finds - Handpicked Amazon finds, worth your money. A static Astro affiliate product discovery site.",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "node scripts/validate-products.mjs && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "check": "astro check",
+    "validate": "node scripts/validate-products.mjs",
+    "add": "node scripts/add-product.mjs",
+    "add-bulk": "node scripts/add-bulk.mjs",
+    "optimize-images": "node scripts/optimize-images.mjs",
+    "placeholders": "node scripts/generate-placeholders.mjs"
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.2.1",
+    "astro": "^5.0.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.10",
+    "sharp": "^0.33.5",
+    "typescript": "^5.9.3"
+  }
+}

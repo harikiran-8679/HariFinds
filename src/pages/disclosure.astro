@@ -1,0 +1,80 @@
+---
+/** AFFILIATE DISCLOSURE PAGE (required by Amazon Associates India) */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE, AFFILIATE_DISCLOSURE } from '../config';
+---
+
+<BaseLayout
+  title="Affiliate disclosure"
+  description={`${SITE.name} takes part in the Amazon Associates programme. Here is exactly how the links on this site work.`}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Affiliate disclosure' }]} />
+
+  <div class="container" style="padding-bottom:3rem;">
+    <header class="page-header">
+      <h1>Affiliate disclosure</h1>
+    </header>
+
+    <div class="callout">
+      <strong>{AFFILIATE_DISCLOSURE}</strong>
+    </div>
+
+    <div class="prose">
+      <p>
+        {SITE.name} participates in the Amazon Associates programme, an affiliate
+        advertising programme designed to provide a means for sites to earn
+        advertising fees by advertising and linking to Amazon.in.
+      </p>
+
+      <h2>How it works</h2>
+      <ul>
+        <li>
+          Some links on this site are affiliate links. They go <strong>directly</strong>
+          to Amazon.in with my Associates tracking tag attached.
+        </li>
+        <li>
+          If you click one and buy something, Amazon may pay me a small commission.
+          The price you pay is exactly the same as if you had searched for the
+          product yourself.
+        </li>
+        <li>
+          Links are never cloaked, redirected through another domain or shortened
+          with a service that hides the destination.
+        </li>
+        <li>
+          I only link to products I am happy to recommend. A commission never
+          changes which products appear on the site.
+        </li>
+      </ul>
+
+      <h2>Prices</h2>
+      <p>
+        Amazon prices and availability change constantly. This site does
+        <strong>not</strong> display live or exact prices — only rough,
+        hand-written ranges such as "Under ₹500". Always check the current price on
+        Amazon before buying.
+      </p>
+
+      <h2>Ratings and reviews</h2>
+      <p>
+        Star ratings, review counts and customer reviews are not copied from
+        Amazon. The short descriptions and "why I recommend it" points are my own
+        words based on personal use.
+      </p>
+
+      <h2>Trademarks</h2>
+      <p>
+        Amazon and the Amazon logo are trademarks of Amazon.com, Inc. or its
+        affiliates. This site uses the word "Amazon" as plain text only, uses no
+        Amazon logos, and is not endorsed by or affiliated with Amazon beyond the
+        Associates programme.
+      </p>
+
+      <p>
+        Questions about any of this? Email
+        <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+      </p>
+    </div>
+  </div>
+</BaseLayout>

@@ -1,0 +1,67 @@
+---
+/**
+ * ProductCard - the main discovery card used in every grid.
+ * The image is lazy-loaded (except for the first cards on a page) and has
+ * width/height set so the layout never shifts while it loads.
+ */
+import { SITE } from '../config';
+import {
+  type Product,
+  categorySlug,
+  withAssociatesTag,
+  AFFILIATE_LINK_ATTRS,
+} from '../lib/products';
+
+export interface Props {
+  product: Product;
+  /** Set true for the first few cards so the hero image loads immediately. */
+  priority?: boolean;
+  /** Show a small "View on Amazon" button inside the card. */
+  amazonCta?: boolean;
+}
+
+const { product, priority = false, amazonCta = true } = Astro.props;
+
+const href = `/product/${product.id}/`;
+const buyUrl = withAssociatesTag(product.affiliateLink, SITE.amazonAssociatesTag);
+const alt = `${product.title} — a ${product.category} find picked by ${SITE.name}`;
+---
+
+<article class="product-card">
+  <a class="product-card-media" href={href} tabindex="-1" aria-hidden="true">
+    <img
+      src={product.image}
+      alt={alt}
+      width="900"
+      height="1200"
+      loading={priority ? 'eager' : 'lazy'}
+      decoding={priority ? 'sync' : 'async'}
+      fetchpriority={priority ? 'high' : 'auto'}
+    />
+    {product.priceNote && <span class="product-card-badge">{product.priceNote}</span>}
+    {product.featured && <span class="product-card-badge is-accent" style="left:auto;right:0.6rem;">Featured</span>}
+  </a>
+
+  <div class="product-card-body">
+    <a class="product-card-category" href={`/category/${categorySlug(product.category)}/`}>
+      {product.category}
+    </a>
+    <h3 class="product-card-title">
+      <a href={href}>{product.title}</a>
+    </h3>
+
+    {amazonCta && (
+      <div class="product-card-cta">
+        <a
+          class="btn btn-primary btn-sm btn-block"
+          href={buyUrl}
+          target={AFFILIATE_LINK_ATTRS.target}
+          rel={AFFILIATE_LINK_ATTRS.rel}
+          aria-label={`View on Amazon — ${product.title} (opens in a new tab)`}
+        >
+          View on Amazon
+        </a>
+      </div>
+    )}
+  </div>
+</article>

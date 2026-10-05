@@ -1,0 +1,49 @@
+---
+/** GUIDES INDEX - lists every Markdown file in src/content/guides/. */
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Breadcrumbs from '../../components/Breadcrumbs.astro';
+import { formatDate } from '../../lib/products';
+
+const guides = (await getCollection('guides')).sort(
+  (a, b) => b.data.date.getTime() - a.data.date.getTime(),
+);
+
+const pageDescription =
+  'Short, honest listicles of useful Amazon finds for India — grouped by room, budget and occasion.';
+---
+
+<BaseLayout title="Guides" description={pageDescription}>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'Guides' }]} />
+
+  <div class="container">
+    <header class="page-header">
+      <h1>Guides</h1>
+      <p>
+        Curated lists built around a single question — a room, a budget, a gift.
+        Shorter than a blog post, more useful than a search page.
+      </p>
+    </header>
+
+    <section style="padding-bottom:3rem;">
+      {guides.length > 0 ? (
+        <div class="guide-list">
+          {guides.map((guide) => (
+            <a class="guide-card" href={`/guides/${guide.id}/`}>
+              <h2>{guide.data.title}</h2>
+              <p class="muted">{guide.data.description}</p>
+              <time datetime={guide.data.date.toISOString()}>
+                {formatDate(guide.data.date)}
+              </time>
+            </a>
+          ))}
+        </div>
+      ) : (
+        <div class="empty-state">
+          <h2>No guides yet</h2>
+          <p>Add a Markdown file in src/content/guides/ and it appears here automatically.</p>
+        </div>
+      )}
+    </section>
+  </div>
+</BaseLayout>

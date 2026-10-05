@@ -1,0 +1,34 @@
+---
+/** CUSTOM 404 PAGE */
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout
+  title="Page not found"
+  description="That page has moved or never existed. Browse the latest handpicked Amazon finds instead."
+  noindex
+>
+  <div class="container" style="padding-block:4rem;text-align:center;max-width:52ch;">
+    <p style="font-size:3rem;margin:0;" aria-hidden="true">🧭</p>
+    <h1>That find has wandered off</h1>
+    <p class="muted">
+      The page you were looking for has moved or never existed. No problem — the
+      good stuff is two clicks away.
+    </p>
+
+    <div style="display:flex;gap:0.75rem;justify-content:center;flex-wrap:wrap;margin-top:1.5rem;">
+      <a class="btn btn-primary" href="/products/">Browse all finds</a>
+      <a class="btn btn-outline" href="/guides/">Read the guides</a>
+    </div>
+
+    <form class="hero-search" action="/products/" method="get" role="search" style="margin-top:2rem;justify-content:center;">
+      <label class="visually-hidden" for="notfound-q">Search finds</label>
+      <input id="notfound-q" type="search" name="q" placeholder="Search finds…" />
+      <button class="btn btn-primary" type="submit">Search</button>
+    </form>
+
+    <p class="muted" style="margin-top:2rem;font-size:0.9rem;">
+      <a href="/">Back to home</a>
+    </p>
+  </div>
+</BaseLayout>

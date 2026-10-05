@@ -1,0 +1,98 @@
+---
+/**
+ * BaseLayout - the single HTML shell for every page.
+ * Handles: meta tags, Open Graph / Twitter cards, canonical URLs,
+ * owner-verification meta tags and JSON-LD injection.
+ */
+import { SITE } from '../config';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import '../styles/global.css';
+
+export interface Props {
+  /** Page title WITHOUT the site name; the site name is appended for you. */
+  title?: string;
+  description?: string;
+  /** Social share image, a path inside /public e.g. /images/og-default.jpg */
+  image?: string;
+  /** Open Graph type: website | article | product */
+  type?: 'website' | 'article' | 'product';
+  /** One object or an array of JSON-LD structured data blocks. */
+  jsonLd?: Record<string, unknown> | Record<string, unknown>[];
+  /** Set true to keep a page out of search engines (used on 404). */
+  noindex?: boolean;
+  /** Extra <meta property="article:..."> values for guides. */
+  publishedTime?: string;
+}
+
+const {
+  title,
+  description = SITE.description,
+  image = SITE.defaultOgImage,
+  type = 'website',
+  jsonLd = [],
+  noindex = false,
+  publishedTime,
+} = Astro.props;
+
+const pageTitle = title ? `${title} | ${SITE.name}` : `${SITE.name} — ${SITE.tagline}`;
+const canonical = new URL(Astro.url.pathname, SITE.url).href;
+const ogImage = new URL(image, SITE.url).href;
+const jsonLdBlocks = Array.isArray(jsonLd) ? jsonLd : [jsonLd];
+---
+
+<!doctype html>
+<html lang="en-IN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Primary title & description (unique per page) -->
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    {noindex && <meta name="robots" content="noindex, follow" />}
+
+    <!-- Icons & theme colour -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <meta name="theme-color" content="#fdfcfa" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#121110" media="(prefers-color-scheme: dark)" />
+
+    <!-- Open Graph: used by social networks and chat apps for link previews -->
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={SITE.name} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:alt" content={title ?? SITE.tagline} />
+    <meta property="og:locale" content="en_IN" />
+    {publishedTime && <meta property="article:published_time" content={publishedTime} />}
+
+    <!-- Twitter / WhatsApp share cards -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={pageTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Owner verification placeholders (fill these in src/config.ts) -->
+    {SITE.verification.google && (
+      <meta name="google-site-verification" content={SITE.verification.google} />
+    )}
+    {SITE.verification.bing && <meta name="msvalidate.01" content={SITE.verification.bing} />}
+
+    <!-- Structured data -->
+    {jsonLdBlocks.map((block) => (
+      <script type="application/ld+json" set:html={JSON.stringify(block)} />
+    ))}
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to content</a>
+    <Header />
+    <main id="main">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

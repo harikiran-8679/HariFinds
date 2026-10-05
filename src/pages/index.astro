@@ -1,0 +1,129 @@
+---
+/** HOME PAGE */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductGrid from '../components/ProductGrid.astro';
+import { SITE } from '../config';
+import { sortByNewest, getFeaturedProducts, getCategories, products } from '../lib/products';
+
+const featured = getFeaturedProducts();
+const latest = sortByNewest(products).slice(0, 8);
+const categories = getCategories().sort((a, b) => b.count - a.count);
+
+// Structured data: who we are + the site itself (with a search box action).
+const homeJsonLd = [
+  {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE.name,
+    url: SITE.url,
+    logo: new URL('/favicon.svg', SITE.url).href,
+    description: SITE.description,
+  },
+  {
+    '@context': 'https://schema.org',
+    '@type': 'WebSite',
+    name: SITE.name,
+    url: SITE.url,
+    description: SITE.description,
+    inLanguage: 'en-IN',
+    potentialAction: {
+      '@type': 'SearchAction',
+      target: {
+        '@type': 'EntryPoint',
+        urlTemplate: new URL('/products/?q={search_term_string}', SITE.url).href,
+      },
+      'query-input': 'required name=search_term_string',
+    },
+  },
+];
+---
+
+<BaseLayout jsonLd={homeJsonLd}>
+  <!-- Hero + search -->
+  <section class="hero">
+    <div class="container">
+      <h1>Amazon finds actually worth your money</h1>
+      <p class="hero-tagline">
+        {SITE.tagline}. Every item here is something I would happily buy again —
+        no filler, no fake reviews, just useful everyday picks for India.
+      </p>
+
+      <form class="hero-search" action="/products/" method="get" role="search">
+        <label class="visually-hidden" for="hero-q">Search finds</label>
+        <input
+          id="hero-q"
+          type="search"
+          name="q"
+          placeholder="Search gadgets, kitchen, gifts…"
+          autocomplete="off"
+        />
+        <button class="btn btn-primary" type="submit">Search</button>
+      </form>
+
+      <div class="hero-actions">
+        <a class="btn btn-outline" href="/products/">Browse all finds</a>
+        <a class="btn btn-outline" href="/guides/">Read the guides</a>
+      </div>
+    </div>
+  </section>
+
+  {
+    featured.length > 0 && (
+      <section class="section container">
+        <div class="section-head">
+          <h2>Featured finds</h2>
+          <a class="section-link" href="/products/">See all →</a>
+        </div>
+        <ProductGrid products={featured} priorityCount={2} />
+      </section>
+    )
+  }
+
+  <!-- Category chips -->
+  <section class="section container" style="padding-top:0;">
+    <div class="section-head">
+      <h2>Browse by category</h2>
+    </div>
+    <nav class="chip-row" aria-label="Product categories">
+      {categories.map((category) => (
+        <a class="chip" href={`/category/${category.slug}/`}>
+          {category.name}
+          <span class="chip-count">{category.count}</span>
+        </a>
+      ))}
+    </nav>
+  </section>
+
+  <!-- Latest finds -->
+  <section class="section container" style="padding-top:0;">
+    <div class="section-head">
+      <h2>Latest finds</h2>
+      <a class="section-link" href="/products/">See all →</a>
+    </div>
+    <ProductGrid products={latest} />
+  </section>
+
+  <!-- About blurb -->
+  <section class="section container" style="padding-top:0;">
+    <div class="about-blurb">
+      <div>
+        <h2>Hi, I'm Hari 👋</h2>
+        <p>
+          I spend far too long reading reviews before buying anything, so I keep a
+          running list of the things that actually turned out well. {SITE.name} is
+          that list — short, honest and updated as I find better options.
+        </p>
+        <p class="muted">
+          If a find stops being worth its price, it comes off the list. No sponsored
+          placements, no padding.
+        </p>
+      </div>
+      <div class="avatar-badge">
+        <span class="brand-mark" style="width:56px;height:56px;font-size:1.6rem;">H</span>
+        <strong>{SITE.name}</strong>
+        <span class="muted" style="font-size:0.9rem;">{SITE.tagline}</span>
+        <a class="btn btn-primary btn-sm" href="/products/">Browse all finds</a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

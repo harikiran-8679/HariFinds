@@ -1,0 +1,59 @@
+---
+/** ABOUT PAGE */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { SITE } from '../config';
+---
+
+<BaseLayout
+  title="About"
+  description={`About ${SITE.name} — a small, hand-curated list of useful Amazon finds for shoppers in India.`}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'About' }]} />
+
+  <div class="container" style="padding-bottom:3rem;">
+    <header class="page-header">
+      <h1>About {SITE.name}</h1>
+      <p>{SITE.tagline}</p>
+    </header>
+
+    <div class="prose">
+      <p>
+        {SITE.name} started as a folder of screenshots. Every time someone asked
+        "which one did you buy?", I sent a link — and eventually sending the same
+        links over and over got silly. This site is that folder, tidied up.
+      </p>
+
+      <h2>What you will find here</h2>
+      <p>
+        A short list of products I have actually used, grouped into simple
+        categories. There is no scraped catalogue and no auto-generated filler.
+        When I stop recommending something, it gets removed.
+      </p>
+
+      <h2>How I pick things</h2>
+      <ul>
+        <li>It solves a small, real annoyance rather than inventing a need.</li>
+        <li>It is worth its price in India — cheap junk and overpriced gadgets both get cut.</li>
+        <li>It survives normal use for at least a few weeks before it earns a page.</li>
+      </ul>
+
+      <h2>What you will not find</h2>
+      <ul>
+        <li>Copied star ratings or review counts from Amazon.</li>
+        <li>Live or exact prices. Prices change daily, so I only show a rough range.</li>
+        <li>Links that hide where they are going. Every button goes straight to Amazon.in.</li>
+      </ul>
+
+      <h2>Say hello</h2>
+      <p>
+        Questions, corrections or a product you think deserves a spot on the list?
+        Email me at <a href={`mailto:${SITE.email}`}>{SITE.email}</a>.
+      </p>
+
+      <p>
+        <a class="btn btn-primary" href="/products/">Browse all finds</a>
+      </p>
+    </div>
+  </div>
+</BaseLayout>

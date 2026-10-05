@@ -1,0 +1,189 @@
+---
+/** ALL PRODUCTS PAGE - client-side search, category filter and sorting. */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import ProductCard from '../components/ProductCard.astro';
+import Breadcrumbs from '../components/Breadcrumbs.astro';
+import { sortByNewest, getCategories, products } from '../lib/products';
+
+const all = sortByNewest(products);
+const categories = getCategories().sort((a, b) => a.name.localeCompare(b.name));
+
+const pageDescription =
+  'Browse every handpicked Amazon find in one place. Search, filter by category and sort the full list of picks worth your money.';
+---
+
+<BaseLayout
+  title="All finds"
+  description={pageDescription}
+  jsonLd={{
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'All finds',
+    description: pageDescription,
+    isPartOf: { '@type': 'WebSite', name: 'Hari Finds' },
+  }}
+>
+  <Breadcrumbs items={[{ label: 'Home', href: '/' }, { label: 'All finds' }]} />
+
+  <div class="container">
+    <header class="page-header">
+      <h1>All finds</h1>
+      <p>
+        {all.length} handpicked products. Search by name, filter by category, or sort
+        the list — everything happens instantly on this page.
+      </p>
+    </header>
+  </div>
+
+  <section class="container" style="padding-bottom:3rem;">
+    <!-- Keeps the heading order valid (h1 -> h2 -> card h3) for screen readers. -->
+    <h2 class="visually-hidden">Product results</h2>
+
+    <!-- Filters -->
+    <div class="filters">
+      <div class="field">
+        <label for="search-input">Search</label>
+        <input
+          id="search-input"
+          type="search"
+          placeholder="Try 'kitchen', 'gift' or 'lamp'…"
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="field">
+        <label for="category-select">Category</label>
+        <select id="category-select">
+          <option value="">All categories</option>
+          {categories.map((category) => (
+            <option value={category.name}>{category.name} ({category.count})</option>
+          ))}
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="sort-select">Sort by</label>
+        <select id="sort-select">
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="az">Title A → Z</option>
+          <option value="za">Title Z → A</option>
+          <option value="category">Category</option>
+        </select>
+      </div>
+    </div>
+
+    <p class="muted" id="results-count" aria-live="polite" style="margin-bottom:1rem;">
+      Showing {all.length} finds
+    </p>
+
+    <!-- Product grid. Each cell carries data attributes used by the filter script. -->
+    <div class="card-grid" id="product-grid">
+      {all.map((product, index) => (
+        <div
+          class="product-cell"
+          data-category={product.category}
+          data-date={product.dateAdded}
+          data-title={product.title}
+          data-search={[
+            product.title,
+            product.description,
+            product.category,
+            ...(product.tags ?? []),
+          ]
+            .join(' ')
+            .toLowerCase()}
+        >
+          <ProductCard product={product} priority={index < 4} />
+        </div>
+      ))}
+    </div>
+
+    <div class="empty-state" id="empty-state" hidden>
+      <h2>No finds matched that</h2>
+      <p>Try a different word, or clear the filters to see everything again.</p>
+      <button class="btn btn-primary btn-sm" id="clear-filters" type="button">
+        Clear filters
+      </button>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  // ---------------------------------------------------------------------------
+  // Tiny vanilla-JS filter/sort for the all-products page.
+  // The cards are already in the HTML, so this only shows, hides and reorders
+  // them - which keeps it fast and works with the lazy-loaded images.
+  // ---------------------------------------------------------------------------
+  const grid = document.getElementById('product-grid');
+  const searchInput = document.getElementById('search-input') as HTMLInputElement | null;
+  const categorySelect = document.getElementById('category-select') as HTMLSelectElement | null;
+  const sortSelect = document.getElementById('sort-select') as HTMLSelectElement | null;
+  const resultsCount = document.getElementById('results-count');
+  const emptyState = document.getElementById('empty-state');
+  const clearButton = document.getElementById('clear-filters');
+
+  if (grid && searchInput && categorySelect && sortSelect) {
+    const cells = Array.from(grid.querySelectorAll<HTMLElement>('.product-cell'));
+
+    /** Pre-fill the search box when arriving from /products/?q=... */
+    const initialQuery = new URLSearchParams(window.location.search).get('q');
+    if (initialQuery) searchInput.value = initialQuery;
+
+    function compare(a: HTMLElement, b: HTMLElement): number {
+      const mode = sortSelect!.value;
+      switch (mode) {
+        case 'oldest':
+          return (a.dataset.date ?? '').localeCompare(b.dataset.date ?? '');
+        case 'az':
+          return (a.dataset.title ?? '').localeCompare(b.dataset.title ?? '');
+        case 'za':
+          return (b.dataset.title ?? '').localeCompare(a.dataset.title ?? '');
+        case 'category':
+          return (
+            (a.dataset.category ?? '').localeCompare(b.dataset.category ?? '') ||
+            (b.dataset.date ?? '').localeCompare(a.dataset.date ?? '')
+          );
+        case 'newest':
+        default:
+          return (b.dataset.date ?? '').localeCompare(a.dataset.date ?? '');
+      }
+    }
+
+    function applyFilters() {
+      const query = searchInput!.value.trim().toLowerCase();
+      const category = categorySelect!.value;
+      let visible = 0;
+
+      for (const cell of cells) {
+        const matchesQuery = !query || (cell.dataset.search ?? '').includes(query);
+        const matchesCategory = !category || cell.dataset.category === category;
+        const show = matchesQuery && matchesCategory;
+        cell.hidden = !show;
+        if (show) visible += 1;
+      }
+
+      // Reorder every cell (hidden ones keep their position at the end).
+      [...cells].sort(compare).forEach((cell) => grid!.appendChild(cell));
+
+      if (resultsCount) {
+        resultsCount.textContent =
+          visible === 1 ? 'Showing 1 find' : `Showing ${visible} finds`;
+      }
+      if (emptyState) emptyState.hidden = visible !== 0;
+    }
+
+    searchInput.addEventListener('input', applyFilters);
+    categorySelect.addEventListener('change', applyFilters);
+    sortSelect.addEventListener('change', applyFilters);
+
+    clearButton?.addEventListener('click', () => {
+      searchInput.value = '';
+      categorySelect.value = '';
+      sortSelect.value = 'newest';
+      applyFilters();
+    });
+
+    applyFilters();
+  }
+</script>
